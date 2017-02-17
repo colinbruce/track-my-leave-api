@@ -26,6 +26,7 @@ gem 'puma', '~> 3.0'
 # gem 'rack-cors'
 group :test do
   gem 'rspec-rails'
+  gem 'shoulda-matchers'
 end
 
 group :development, :test do
