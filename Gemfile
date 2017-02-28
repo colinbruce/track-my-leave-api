@@ -25,6 +25,7 @@ gem 'bcrypt', '~> 3.1.7'
 # gem 'rack-cors'
 group :test do
   gem 'factory_girl_rails'
+  gem 'timecop'
 end
 
 group :development, :test do
