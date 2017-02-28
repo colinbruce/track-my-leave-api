@@ -21,4 +21,40 @@ RSpec.describe User do
       it { is_expected.to be false }
     end
   end
+
+  describe 'callbacks' do
+    context 'before_save' do
+      subject { user.email }
+      before { user.save }
+
+      describe 'downcase`s emails' do
+        let(:email) { 'UPPERCASE@email.com' }
+        it { is_expected.to eq 'uppercase@email.com' }
+      end
+
+      describe 'removes spaces' do
+        let(:email) { 'remove space@email.com' }
+
+        it { is_expected.to eq 'removespace@email.com' }
+      end
+    end
+
+    context 'before_create' do
+      subject(:user) { create :user, email: email }
+
+      describe 'generate_confirmation_instructions' do
+        describe 'confirmation_token' do
+          subject { user.confirmation_token }
+
+          it { is_expected.to be_a String }
+        end
+
+        describe 'confirmation_sent_at' do
+          subject { user.confirmation_sent_at }
+
+          it { is_expected.to be_a Time }
+        end
+      end
+    end
+  end
 end
