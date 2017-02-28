@@ -57,4 +57,31 @@ RSpec.describe User do
       end
     end
   end
+
+  describe '#confirmation_token_valid?' do
+    subject { user.confirmation_token_valid? }
+
+    let(:user) { Timecop.freeze(confirmation_sent) { create :user } }
+
+    context 'when the token is out of date' do
+      let(:confirmation_sent) { 31.days.ago }
+
+      it { is_expected.to be false }
+    end
+
+    context 'when the token is in date' do
+      let(:confirmation_sent) { 10.days.ago }
+
+      it { is_expected.to be true }
+    end
+  end
+
+  describe '#mark_as_confirmed!' do
+    before { Timecop.freeze(2017, 1, 1, 10, 0) { user.mark_as_confirmed! } }
+
+    let(:user) { create :user }
+
+    it { expect(user.confirmation_token).to be nil }
+    it { expect(user.confirmed_at).to eq Time.zone.parse('2017-01-01 10:00:00') }
+  end
 end

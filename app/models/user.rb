@@ -19,4 +19,14 @@ class User < ApplicationRecord
     self.confirmation_token = SecureRandom.hex(10)
     self.confirmation_sent_at = Time.zone.now.utc
   end
+
+  def confirmation_token_valid?
+    (confirmation_sent_at + 30.days) > Time.zone.now.utc
+  end
+
+  def mark_as_confirmed!
+    self.confirmation_token = nil
+    self.confirmed_at = Time.zone.now.utc
+    save
+  end
 end
