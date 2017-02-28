@@ -24,13 +24,21 @@ gem 'puma', '~> 3.0'
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin AJAX possible
 # gem 'rack-cors'
 group :test do
-  gem 'rspec-rails'
-  gem 'shoulda-matchers'
+  gem 'factory_girl_rails'
 end
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platform: :mri
+  gem 'guard-livereload'
+  gem 'guard-rspec'
+  gem 'guard-rubocop'
+  gem 'pry-rails'
+  gem 'rack-livereload'
+  gem 'rspec-rails'
+  gem 'rubocop', '~>0.38', require: false
+  gem 'rubocop-rspec', '~>1', require: false
+  gem 'shoulda-matchers'
 end
 
 group :development do
