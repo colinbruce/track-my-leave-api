@@ -44,4 +44,25 @@ RSpec.describe UsersController, type: :controller do
       it { expect(post_confirm.status).to be 200 }
     end
   end
+
+  describe 'POST #login' do
+    subject(:post_login) { post :login, params: params }
+
+    let(:user) { create :confirmed_user }
+    let(:params) { { email: user.email, password: password } }
+
+    context 'with valid email' do
+      let(:password) { 'password' }
+
+      it { expect(post_login.status).to be 200 }
+
+      # it { expect(response.header['Content-Type']).to include 'application/json' }
+    end
+
+    context 'with invalid password' do
+      let(:password) { 'wrong' }
+
+      it { expect(post_login.status).to be 401 }
+    end
+  end
 end
