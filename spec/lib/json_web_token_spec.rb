@@ -25,4 +25,34 @@ RSpec.describe JsonWebToken do
       end
     end
   end
+
+  describe '.decode' do
+    subject(:decoded_jwt) { described_class.decode(token) }
+
+    let(:token) { JWT.encode({ 'key': 'value' }, Rails.application.secrets.secret_key_base) }
+
+    it { expect(decoded_jwt.first['key']).to eq 'value' }
+  end
+
+  describe '.valid_payload' do
+    subject(:payload_hash) { described_class.valid_payload(payload) }
+
+    context 'when encoded by our class' do
+      let(:payload) { { 'test': 'data', 'exp': Time.zone.now + 1.day, 'iss': 'issuer_name', 'aud': 'client' } }
+
+      it { is_expected.to be true }
+    end
+
+    context 'when claims are invalid' do
+      let(:payload) { { 'test': 'data', 'exp': Time.zone.now + 1.day, 'iss': 'wrong', 'aud': 'client' } }
+
+      it { is_expected.to be false }
+    end
+
+    context 'when date has expired' do
+      let(:payload) { { 'test': 'data', 'exp': Time.zone.now - 1.day, 'iss': 'wrong', 'aud': 'client' } }
+
+      it { is_expected.to be false }
+    end
+  end
 end
