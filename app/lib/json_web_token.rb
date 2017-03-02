@@ -30,6 +30,6 @@ class JsonWebToken
   end
 
   def self.payload_matches?(payload, claim)
-    payload[claim] == meta[claim]
+    [payload[claim], payload[claim.to_s]].include? meta[claim]
   end
 end
