@@ -56,7 +56,23 @@ RSpec.describe UsersController, type: :controller do
 
       it { expect(post_login.status).to be 200 }
 
-      # it { expect(response.header['Content-Type']).to include 'application/json' }
+      context 'returns a JWT' do
+        subject(:decoded_jwt) { JWT.decode(JSON.parse(post_login.body)['auth_token'], Rails.application.secrets.secret_key_base) }
+
+        describe 'with valid claims' do
+          subject(:claims) { decoded_jwt[0] }
+
+          it { expect(claims['iss']).to eq('issuer_name') }
+          it { expect(claims['aud']).to eq('client') }
+        end
+
+        describe 'headers' do
+          subject(:header) { decoded_jwt[1] }
+
+          it { expect(header['typ']).to eq 'JWT' }
+          it { expect(header['alg']).to eq 'HS256' }
+        end
+      end
     end
 
     context 'with invalid password' do
