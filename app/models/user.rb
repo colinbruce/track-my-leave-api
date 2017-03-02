@@ -29,4 +29,8 @@ class User < ApplicationRecord
     self.confirmed_at = Time.zone.now.utc
     save
   end
+
+  def unconfirmed?
+    confirmed_at.nil?
+  end
 end

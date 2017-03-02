@@ -26,12 +26,11 @@ class UsersController < ApplicationController
   end
 
   def login
-    user = User.find_by(email: params[:email].to_s.downcase)
-
-    if user && user.authenticate(params[:password])
-      # TODO: implement confirmed user check
-      auth_token = JsonWebToken.encode(user_id: user.id)
+    if login_successful?
+      auth_token = JsonWebToken.encode(user_id: login_user.id)
       render json: { auth_token: auth_token }, status: :ok
+    elsif user_unconfirmed?
+      render json: { error: 'Email not verified' }, status: :unauthorized
     else
       render json: { error: 'Invalid username / password' }, status: :unauthorized
     end
@@ -41,5 +40,21 @@ class UsersController < ApplicationController
 
   def user_params
     params.require(:user).permit(:email, :password, :password_confirmation)
+  end
+
+  def login_user
+    @login_user ||= User.find_by(email: params[:email].to_s.downcase)
+  end
+
+  def login_successful?
+    user_exists_and_password_matches && login_user.confirmed_at?
+  end
+
+  def user_unconfirmed?
+    user_exists_and_password_matches && login_user.unconfirmed?
+  end
+
+  def user_exists_and_password_matches
+    login_user && login_user.authenticate(params[:password])
   end
 end

@@ -51,27 +51,37 @@ RSpec.describe UsersController, type: :controller do
     let(:user) { create :confirmed_user }
     let(:params) { { email: user.email, password: password } }
 
-    context 'with valid email' do
+    context 'with valid password' do
       let(:password) { 'password' }
 
-      it { expect(post_login.status).to be 200 }
+      context 'when user has verified their account' do
+        it { expect(post_login.status).to be 200 }
 
-      context 'returns a JWT' do
-        subject(:decoded_jwt) { JWT.decode(JSON.parse(post_login.body)['auth_token'], Rails.application.secrets.secret_key_base) }
+        context 'returns a JWT' do
+          subject(:decoded_jwt) { JWT.decode(JSON.parse(post_login.body)['auth_token'], Rails.application.secrets.secret_key_base) }
 
-        describe 'with valid claims' do
-          subject(:claims) { decoded_jwt[0] }
+          describe 'with valid claims' do
+            subject(:claims) { decoded_jwt[0] }
 
-          it { expect(claims['iss']).to eq('issuer_name') }
-          it { expect(claims['aud']).to eq('client') }
+            it { expect(claims['iss']).to eq('issuer_name') }
+            it { expect(claims['aud']).to eq('client') }
+          end
+
+          describe 'headers' do
+            subject(:header) { decoded_jwt[1] }
+
+            it { expect(header['typ']).to eq 'JWT' }
+            it { expect(header['alg']).to eq 'HS256' }
+          end
         end
+      end
 
-        describe 'headers' do
-          subject(:header) { decoded_jwt[1] }
+      context 'when the account is un-verified' do
+        subject(:json_response) { JSON.parse(post_login.body)['error'] }
+        let(:user) { create :user }
 
-          it { expect(header['typ']).to eq 'JWT' }
-          it { expect(header['alg']).to eq 'HS256' }
-        end
+        it { expect(post_login.status).to be 401 }
+        it { is_expected.to eq 'Email not verified' }
       end
     end
 
